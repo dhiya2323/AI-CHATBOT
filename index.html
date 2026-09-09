@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>General AI Chatbot</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+        }
+
+        .container {
+            width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 25px;
+        }
+
+        #chatbox {
+            height: 350px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 6px;
+        }
+
+        #message {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 12px 20px;
+            cursor: pointer;
+        }
+
+        .user {
+            margin-bottom: 15px;
+        }
+
+        .bot {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🤖 General AI Chatbot</h1>
+
+    <div id="chatbox"></div>
+
+    <div class="input-area">
+        <input
+            type="text"
+            id="message"
+            placeholder="Ask something..."
+        >
+
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+
+async function sendMessage() {
+
+    const input = document.getElementById("message");
+    const chatbox = document.getElementById("chatbox");
+
+    const message = input.value.trim();
+
+    if (message === "") {
+        return;
+    }
+
+    chatbox.innerHTML += `
+        <div class="user">
+            <strong>You:</strong> ${message}
+        </div>
+    `;
+
+    input.value = "";
+
+    try {
+
+        const response = await fetch("/chat", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        chatbox.innerHTML += `
+            <div class="bot">
+                <strong>AI:</strong> ${data.reply}
+            </div>
+        `;
+
+        chatbox.scrollTop = chatbox.scrollHeight;
+
+    } catch (error) {
+
+        chatbox.innerHTML += `
+            <div class="bot">
+                <strong>AI:</strong> Unable to connect to server.
+            </div>
+        `;
+    }
+}
+
+document.getElementById("message").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+});
+
+</script>
+
+</body>
+</html>
